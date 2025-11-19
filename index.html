@@ -382,31 +382,34 @@
             void espressoLayer.offsetWidth;
 
             // Calculate layer heights (total cup height = 300px)
-            // Layers stack from bottom, so we need cumulative heights
             const milkHeight = coffee.milk * 3; // 3px per percentage point
             const waterHeight = coffee.water * 3;
             const espressoHeight = coffee.espresso * 3;
 
-            // The milk is at the bottom, water on top of milk, espresso on top
-            // But we position from bottom, so milk gets full height including layers above
-            const milkBottom = 0;
-            const waterBottom = milkHeight;
-            const espressoBottom = milkHeight + waterHeight;
+            // Set heights and bottom positions for proper stacking
+            // Stack order from bottom to top: Espresso → Water → Milk
 
-            // Set heights
-            milkLayer.style.height = `${milkHeight}px`;
-            waterLayer.style.height = `${waterHeight}px`;
+            // Espresso is at the bottom
             espressoLayer.style.height = `${espressoHeight}px`;
+            espressoLayer.style.bottom = '0';
+
+            // Water sits on top of espresso
+            waterLayer.style.height = `${waterHeight}px`;
+            waterLayer.style.bottom = `${espressoHeight}px`;
+
+            // Milk sits on top of water and espresso
+            milkLayer.style.height = `${milkHeight}px`;
+            milkLayer.style.bottom = `${espressoHeight + waterHeight}px`;
 
             // Add animation classes sequentially (one at a time, not overlapping)
             // Each animation takes 800ms, so we start the next one after the previous finishes
             let currentDelay = 0;
             const animationDuration = 800; // milliseconds
 
-            // Animate layers from bottom to top, only if they exist
-            if (milkHeight > 0) {
+            // Animate layers from bottom to top: Espresso → Water → Milk
+            if (espressoHeight > 0) {
                 setTimeout(() => {
-                    milkLayer.classList.add('animate');
+                    espressoLayer.classList.add('animate');
                 }, currentDelay);
                 currentDelay += animationDuration;
             }
@@ -418,9 +421,9 @@
                 currentDelay += animationDuration;
             }
 
-            if (espressoHeight > 0) {
+            if (milkHeight > 0) {
                 setTimeout(() => {
-                    espressoLayer.classList.add('animate');
+                    milkLayer.classList.add('animate');
                 }, currentDelay);
             }
 
