@@ -353,7 +353,7 @@
         const description = document.getElementById('description');
 
         // Current selected coffee
-        let currentCoffee = 'espresso';
+        let currentCoffee = null;
 
         /**
          * Update the visualization with new coffee data
@@ -362,6 +362,9 @@
         function updateCoffee(coffeeType) {
             const coffee = coffeeData[coffeeType];
             if (!coffee) return;
+
+            // Don't re-animate if clicking the same coffee type
+            if (currentCoffee === coffeeType) return;
 
             currentCoffee = coffeeType;
 
