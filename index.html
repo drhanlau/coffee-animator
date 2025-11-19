@@ -157,7 +157,7 @@
 
         /* Animation classes */
         .animate {
-            animation: fillUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fillUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes fillUp {
@@ -395,18 +395,31 @@
             waterLayer.style.height = `${waterHeight}px`;
             espressoLayer.style.height = `${espressoHeight}px`;
 
-            // Add animation classes with slight delays for stagger effect
-            setTimeout(() => {
-                if (milkHeight > 0) milkLayer.classList.add('animate');
-            }, 100);
+            // Add animation classes sequentially (one at a time, not overlapping)
+            // Each animation takes 800ms, so we start the next one after the previous finishes
+            let currentDelay = 0;
+            const animationDuration = 800; // milliseconds
 
-            setTimeout(() => {
-                if (waterHeight > 0) waterLayer.classList.add('animate');
-            }, 300);
+            // Animate layers from bottom to top, only if they exist
+            if (milkHeight > 0) {
+                setTimeout(() => {
+                    milkLayer.classList.add('animate');
+                }, currentDelay);
+                currentDelay += animationDuration;
+            }
 
-            setTimeout(() => {
-                if (espressoHeight > 0) espressoLayer.classList.add('animate');
-            }, 500);
+            if (waterHeight > 0) {
+                setTimeout(() => {
+                    waterLayer.classList.add('animate');
+                }, currentDelay);
+                currentDelay += animationDuration;
+            }
+
+            if (espressoHeight > 0) {
+                setTimeout(() => {
+                    espressoLayer.classList.add('animate');
+                }, currentDelay);
+            }
 
             // Update info panel
             coffeeName.textContent = coffee.name;
