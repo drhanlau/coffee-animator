@@ -3,7 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Ratio Visualiser</title>
+    <title>Coffee Ratio Visualiser - Premium Edition</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        coffee: {
+                            50: '#fef8f0',
+                            100: '#fdf0e1',
+                            200: '#f9ddc3',
+                            300: '#f5c79f',
+                            400: '#f0a673',
+                            500: '#e88548',
+                            600: '#d96628',
+                            700: '#b24d1d',
+                            800: '#8e3e1c',
+                            900: '#73341b',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         /*
         ═══════════════════════════════════════════════════════════════
@@ -19,114 +55,31 @@
             espresso: 33,    // % of espresso
             water: 0,        // % of water
             milk: 67,        // % of milk (should total 100%)
-            description: 'Equal parts espresso, steamed milk, and foam.'
+            description: 'Equal parts espresso, steamed milk, and foam.',
+            icon: '☕'        // Optional emoji icon
         }
 
-        Then add a button in the HTML section:
-        <button class="coffee-btn" data-coffee="cappuccino">Cappuccino</button>
+        Then add a button in the HTML section (find the coffee-selector div).
 
         That's it! The animation will automatically work with your new ratios.
         ═══════════════════════════════════════════════════════════════
         */
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            font-family: 'Inter', system-ui, sans-serif;
         }
 
-        .container {
-            background: white;
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
-        h1 {
-            font-size: 2.5rem;
-            color: #2d3748;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .subtitle {
-            color: #718096;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
-        .coffee-selector {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .coffee-btn {
-            padding: 12px 28px;
-            font-size: 1rem;
-            border: 2px solid #e2e8f0;
-            background: white;
-            color: #4a5568;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .coffee-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .coffee-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .visualization {
-            display: flex;
-            gap: 40px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cup-container {
-            flex: 1;
-            min-width: 250px;
-            max-width: 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .cup {
-            width: 200px;
-            height: 300px;
-            border: 4px solid #2d3748;
-            border-radius: 8px 8px 16px 16px;
-            position: relative;
-            overflow: hidden;
-            background: #f7fafc;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        .cup-shadow {
+            box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.05),
+                0 10px 30px -5px rgba(0, 0, 0, 0.2),
+                0 20px 60px -10px rgba(0, 0, 0, 0.15);
         }
 
         /* Liquid layers - stacked from bottom to top */
@@ -140,7 +93,7 @@
         }
 
         .espresso-layer {
-            background: linear-gradient(180deg, #3e2723 0%, #4e342e 100%);
+            background: linear-gradient(180deg, #3e2723 0%, #4e342e 50%, #3e2723 100%);
             z-index: 3;
         }
 
@@ -170,95 +123,8 @@
             }
         }
 
-        .info-panel {
-            flex: 1;
-            min-width: 250px;
-            max-width: 400px;
-        }
-
-        .coffee-name {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 20px;
-        }
-
-        .ratio-breakdown {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .ratio-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .ratio-color {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .ratio-color.espresso {
-            background: linear-gradient(135deg, #3e2723 0%, #4e342e 100%);
-        }
-
-        .ratio-color.water {
-            background: linear-gradient(135deg, rgba(144, 202, 249, 0.8) 0%, rgba(100, 181, 246, 0.9) 100%);
-        }
-
-        .ratio-color.milk {
-            background: linear-gradient(135deg, #fef5e7 0%, #f9e4c8 100%);
-        }
-
-        .ratio-text {
-            font-size: 1.1rem;
-            color: #4a5568;
-            font-weight: 600;
-        }
-
-        .ratio-percentage {
-            margin-left: auto;
-            font-size: 1.1rem;
-            color: #718096;
-            font-weight: 600;
-        }
-
-        .description {
-            color: #718096;
-            line-height: 1.6;
-            font-size: 1rem;
-            padding: 16px;
-            background: #f7fafc;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-        }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px 20px;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .visualization {
-                gap: 30px;
-            }
-
-            .coffee-name {
-                font-size: 1.5rem;
-            }
-        }
-
         /* Initial hidden state */
-        .hidden {
+        .hidden-fade {
             opacity: 0;
         }
 
@@ -271,40 +137,194 @@
                 opacity: 1;
             }
         }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-premium {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>☕ Coffee Ratio Visualiser</h1>
-        <p class="subtitle">Choose a coffee and watch the cup fill with espresso, water, and milk.</p>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 sm:p-6 lg:p-8">
+    <!-- Background decorative elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div class="absolute top-40 right-10 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 1s;"></div>
+        <div class="absolute -bottom-20 left-1/2 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+    </div>
 
-        <div class="coffee-selector">
-            <button class="coffee-btn active" data-coffee="espresso">Espresso</button>
-            <button class="coffee-btn" data-coffee="americano">Americano</button>
-            <button class="coffee-btn" data-coffee="latte">Latte</button>
+    <div class="relative max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12 sm:mb-16">
+            <div class="inline-flex items-center justify-center mb-6">
+                <div class="float-animation">
+                    <svg class="w-16 h-16 sm:w-20 sm:h-20 text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M2 21h19v-3H2v3zM20 8h-3V4h-2v4h-2V4h-2v4H9V4H7v4H4v10h16V8zm-2 8H5V10h13v6z"/>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+                <span class="gradient-text">Coffee Ratio</span>
+                <br>
+                <span class="text-white">Visualiser</span>
+            </h1>
+            <p class="text-slate-300 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto px-4">
+                Discover the perfect blend of espresso, water, and milk in your favorite coffee drinks
+            </p>
         </div>
 
-        <div class="visualization">
-            <div class="cup-container">
-                <div class="cup">
-                    <!-- Layers stack from bottom: milk, water, espresso -->
-                    <div class="liquid-layer milk-layer" id="milk-layer"></div>
-                    <div class="liquid-layer water-layer" id="water-layer"></div>
-                    <div class="liquid-layer espresso-layer" id="espresso-layer"></div>
+        <!-- Main Card -->
+        <div class="glass-effect rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+            <!-- Coffee Selector -->
+            <div class="bg-gradient-to-r from-purple-600/30 via-pink-600/30 to-orange-600/30 p-6 sm:p-8">
+                <div class="flex flex-wrap gap-3 justify-center" id="coffee-selector">
+                    <button class="coffee-btn btn-premium px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 bg-white text-slate-800 shadow-lg hover:shadow-xl hover:scale-105 active border-2 border-purple-500/50" data-coffee="espresso">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                            </svg>
+                            <span>Espresso</span>
+                        </span>
+                    </button>
+                    <button class="coffee-btn btn-premium px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-transparent" data-coffee="americano">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path>
+                            </svg>
+                            <span>Americano</span>
+                        </span>
+                    </button>
+                    <button class="coffee-btn btn-premium px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-semibold text-sm sm:text-base transition-all duration-300 bg-white/80 hover:bg-white text-slate-800 shadow-lg hover:shadow-xl hover:scale-105 border-2 border-transparent" data-coffee="latte">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                            <span>Latte</span>
+                        </span>
+                    </button>
                 </div>
             </div>
 
-            <div class="info-panel">
-                <div class="coffee-name" id="coffee-name">Espresso</div>
+            <!-- Visualization Area -->
+            <div class="p-6 sm:p-8 lg:p-12">
+                <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                    <!-- Cup Container -->
+                    <div class="flex flex-col items-center justify-center">
+                        <div class="relative">
+                            <!-- Decorative glow -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-purple-500/20 to-transparent rounded-3xl blur-2xl"></div>
 
-                <div class="ratio-breakdown" id="ratio-breakdown">
-                    <!-- Ratio items will be inserted here by JavaScript -->
-                </div>
+                            <!-- Cup -->
+                            <div class="relative w-64 h-96 sm:w-72 sm:h-[28rem] bg-gradient-to-b from-slate-50 to-slate-100 rounded-3xl border-4 border-slate-800 overflow-hidden cup-shadow">
+                                <!-- Liquid layers -->
+                                <div class="liquid-layer milk-layer" id="milk-layer"></div>
+                                <div class="liquid-layer water-layer" id="water-layer"></div>
+                                <div class="liquid-layer espresso-layer" id="espresso-layer"></div>
 
-                <div class="description" id="description">
-                    Pure, concentrated coffee - the foundation of all espresso-based drinks.
+                                <!-- Cup shine effect -->
+                                <div class="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+
+                            <!-- Cup handle -->
+                            <div class="absolute -right-8 top-1/3 w-16 h-24 border-4 border-slate-800 border-l-0 rounded-r-full"></div>
+                        </div>
+
+                        <!-- Steam effect (decorative) -->
+                        <div class="mt-4 flex gap-2 opacity-40">
+                            <div class="w-1 h-8 bg-gradient-to-t from-slate-400 to-transparent rounded-full animate-pulse"></div>
+                            <div class="w-1 h-10 bg-gradient-to-t from-slate-400 to-transparent rounded-full animate-pulse" style="animation-delay: 0.3s;"></div>
+                            <div class="w-1 h-6 bg-gradient-to-t from-slate-400 to-transparent rounded-full animate-pulse" style="animation-delay: 0.6s;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Info Panel -->
+                    <div class="space-y-6 sm:space-y-8">
+                        <!-- Coffee Name -->
+                        <div>
+                            <h2 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 mb-3" id="coffee-name">
+                                Espresso
+                            </h2>
+                            <div class="h-1 w-24 bg-gradient-to-r from-purple-600 via-pink-600 to-orange-600 rounded-full"></div>
+                        </div>
+
+                        <!-- Ratio Breakdown -->
+                        <div class="space-y-4" id="ratio-breakdown">
+                            <!-- Ratio items will be inserted here by JavaScript -->
+                        </div>
+
+                        <!-- Description -->
+                        <div class="relative">
+                            <div class="absolute -left-4 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-600 via-pink-600 to-orange-600 rounded-full"></div>
+                            <div class="pl-6 pr-4 py-4 bg-slate-50/50 rounded-2xl">
+                                <p class="text-slate-700 text-base sm:text-lg leading-relaxed" id="description">
+                                    Pure, concentrated coffee - the foundation of all espresso-based drinks.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Stats Card -->
+                        <div class="grid grid-cols-3 gap-4 mt-8">
+                            <div class="bg-gradient-to-br from-purple-100 to-purple-50 rounded-xl p-4 text-center border border-purple-200">
+                                <div class="text-2xl sm:text-3xl font-bold text-purple-900" id="stat-strength">●●●</div>
+                                <div class="text-xs sm:text-sm text-purple-700 font-medium mt-1">Strength</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-pink-100 to-pink-50 rounded-xl p-4 text-center border border-pink-200">
+                                <div class="text-2xl sm:text-3xl font-bold text-pink-900" id="stat-milk">0%</div>
+                                <div class="text-xs sm:text-sm text-pink-700 font-medium mt-1">Milk</div>
+                            </div>
+                            <div class="bg-gradient-to-br from-orange-100 to-orange-50 rounded-xl p-4 text-center border border-orange-200">
+                                <div class="text-2xl sm:text-3xl font-bold text-orange-900" id="stat-volume">30ml</div>
+                                <div class="text-xs sm:text-sm text-orange-700 font-medium mt-1">Volume</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 sm:mt-12">
+            <p class="text-slate-400 text-sm sm:text-base">
+                Made with
+                <svg class="inline w-4 h-4 sm:w-5 sm:h-5 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                and ☕
+            </p>
         </div>
     </div>
 
@@ -321,21 +341,27 @@
                 espresso: 100,
                 water: 0,
                 milk: 0,
-                description: 'Pure, concentrated coffee - the foundation of all espresso-based drinks.'
+                description: 'Pure, concentrated coffee - the foundation of all espresso-based drinks. Rich, bold, and intensely aromatic.',
+                strength: 3,
+                volume: '30ml'
             },
             americano: {
                 name: 'Americano',
                 espresso: 30,
                 water: 70,
                 milk: 0,
-                description: 'Espresso diluted with hot water for a lighter, longer drink with bold coffee flavor.'
+                description: 'Espresso diluted with hot water for a lighter, longer drink with bold coffee flavor. Perfect for those who enjoy a milder taste.',
+                strength: 2,
+                volume: '180ml'
             },
             latte: {
                 name: 'Latte',
                 espresso: 30,
                 water: 0,
                 milk: 70,
-                description: 'Smooth and creamy espresso with steamed milk, perfect for a mellow coffee experience.'
+                description: 'Smooth and creamy espresso with steamed milk, perfect for a mellow coffee experience. A comforting classic.',
+                strength: 1,
+                volume: '240ml'
             }
         };
 
@@ -351,6 +377,9 @@
         const coffeeName = document.getElementById('coffee-name');
         const ratioBreakdown = document.getElementById('ratio-breakdown');
         const description = document.getElementById('description');
+        const statStrength = document.getElementById('stat-strength');
+        const statMilk = document.getElementById('stat-milk');
+        const statVolume = document.getElementById('stat-volume');
 
         // Current selected coffee
         let currentCoffee = null;
@@ -370,7 +399,14 @@
 
             // Update button states
             coffeeButtons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.coffee === coffeeType);
+                const isActive = btn.dataset.coffee === coffeeType;
+                if (isActive) {
+                    btn.classList.add('active', 'bg-white', 'border-purple-500/50');
+                    btn.classList.remove('bg-white/80');
+                } else {
+                    btn.classList.remove('active', 'border-purple-500/50');
+                    btn.classList.add('bg-white/80');
+                }
             });
 
             // Remove animation classes
@@ -378,10 +414,11 @@
             waterLayer.classList.remove('animate');
             milkLayer.classList.remove('animate');
 
-            // Calculate layer heights (total cup height = 300px)
-            const milkHeight = coffee.milk * 3; // 3px per percentage point
-            const waterHeight = coffee.water * 3;
-            const espressoHeight = coffee.espresso * 3;
+            // Calculate layer heights (total cup height = 400px for sm:h-[28rem] ≈ 448px)
+            const totalHeight = 400;
+            const milkHeight = (coffee.milk / 100) * totalHeight;
+            const waterHeight = (coffee.water / 100) * totalHeight;
+            const espressoHeight = (coffee.espresso / 100) * totalHeight;
 
             // Reset all layers to height 0 and set positions
             // Stack order from bottom to top: Espresso → Water → Milk
@@ -434,6 +471,11 @@
             coffeeName.textContent = coffee.name;
             description.textContent = coffee.description;
 
+            // Update stats
+            statStrength.textContent = '●'.repeat(coffee.strength) + '○'.repeat(3 - coffee.strength);
+            statMilk.textContent = coffee.milk + '%';
+            statVolume.textContent = coffee.volume;
+
             // Update ratio breakdown
             updateRatioBreakdown(coffee);
         }
@@ -447,32 +489,50 @@
 
             // Create ratio items for non-zero percentages
             const items = [
-                { name: 'Espresso', percentage: coffee.espresso, class: 'espresso' },
-                { name: 'Water', percentage: coffee.water, class: 'water' },
-                { name: 'Milk', percentage: coffee.milk, class: 'milk' }
+                {
+                    name: 'Espresso',
+                    percentage: coffee.espresso,
+                    gradient: 'from-amber-900 to-amber-800',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>`
+                },
+                {
+                    name: 'Water',
+                    percentage: coffee.water,
+                    gradient: 'from-blue-400 to-blue-500',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>`
+                },
+                {
+                    name: 'Milk',
+                    percentage: coffee.milk,
+                    gradient: 'from-orange-200 to-orange-300',
+                    icon: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>`
+                }
             ];
 
-            items.forEach(item => {
+            items.forEach((item, index) => {
                 if (item.percentage > 0) {
                     const ratioItem = document.createElement('div');
-                    ratioItem.className = 'ratio-item hidden fade-in';
+                    ratioItem.className = 'hidden-fade fade-in';
                     ratioItem.innerHTML = `
-                        <div class="ratio-color ${item.class}"></div>
-                        <span class="ratio-text">${item.name}</span>
-                        <span class="ratio-percentage">${item.percentage}%</span>
+                        <div class="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r ${item.gradient} shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                            <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-xl bg-white/20 text-white">
+                                ${item.icon}
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-white font-semibold text-lg">${item.name}</div>
+                                <div class="text-white/80 text-sm">${item.percentage}% composition</div>
+                            </div>
+                            <div class="text-3xl font-bold text-white">${item.percentage}%</div>
+                        </div>
                     `;
                     ratioBreakdown.appendChild(ratioItem);
+
+                    // Trigger fade-in animation
+                    setTimeout(() => {
+                        ratioItem.classList.remove('hidden-fade');
+                    }, index * 100);
                 }
             });
-
-            // Trigger fade-in animation
-            setTimeout(() => {
-                document.querySelectorAll('.ratio-item').forEach((item, index) => {
-                    setTimeout(() => {
-                        item.classList.remove('hidden');
-                    }, index * 100);
-                });
-            }, 10);
         }
 
         // Add click event listeners to coffee buttons
