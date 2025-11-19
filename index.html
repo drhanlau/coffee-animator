@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Ratio Visualiser</title>
+    <style>
+        /*
+        ═══════════════════════════════════════════════════════════════
+        HOW TO ADD A NEW DRINK:
+        ═══════════════════════════════════════════════════════════════
+
+        Scroll down to the JavaScript section and find the `coffeeData` object.
+
+        Add a new entry like this:
+
+        cappuccino: {
+            name: 'Cappuccino',
+            espresso: 33,    // % of espresso
+            water: 0,        // % of water
+            milk: 67,        // % of milk (should total 100%)
+            description: 'Equal parts espresso, steamed milk, and foam.'
+        }
+
+        Then add a button in the HTML section:
+        <button class="coffee-btn" data-coffee="cappuccino">Cappuccino</button>
+
+        That's it! The animation will automatically work with your new ratios.
+        ═══════════════════════════════════════════════════════════════
+        */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #2d3748;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #718096;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .coffee-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .coffee-btn {
+            padding: 12px 28px;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .coffee-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .coffee-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .visualization {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cup-container {
+            flex: 1;
+            min-width: 250px;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cup {
+            width: 200px;
+            height: 300px;
+            border: 4px solid #2d3748;
+            border-radius: 8px 8px 16px 16px;
+            position: relative;
+            overflow: hidden;
+            background: #f7fafc;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Liquid layers - stacked from bottom to top */
+        .liquid-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            transform-origin: bottom;
+            transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .espresso-layer {
+            background: linear-gradient(180deg, #3e2723 0%, #4e342e 100%);
+            z-index: 3;
+        }
+
+        .water-layer {
+            background: linear-gradient(180deg, rgba(144, 202, 249, 0.6) 0%, rgba(100, 181, 246, 0.7) 100%);
+            z-index: 2;
+        }
+
+        .milk-layer {
+            background: linear-gradient(180deg, #fef5e7 0%, #f9e4c8 100%);
+            z-index: 1;
+        }
+
+        /* Animation classes */
+        .animate {
+            animation: fillUp 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fillUp {
+            from {
+                height: 0;
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .info-panel {
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .coffee-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .ratio-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .ratio-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ratio-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .ratio-color.espresso {
+            background: linear-gradient(135deg, #3e2723 0%, #4e342e 100%);
+        }
+
+        .ratio-color.water {
+            background: linear-gradient(135deg, rgba(144, 202, 249, 0.8) 0%, rgba(100, 181, 246, 0.9) 100%);
+        }
+
+        .ratio-color.milk {
+            background: linear-gradient(135deg, #fef5e7 0%, #f9e4c8 100%);
+        }
+
+        .ratio-text {
+            font-size: 1.1rem;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .ratio-percentage {
+            margin-left: auto;
+            font-size: 1.1rem;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .description {
+            color: #718096;
+            line-height: 1.6;
+            font-size: 1rem;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .visualization {
+                gap: 30px;
+            }
+
+            .coffee-name {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Initial hidden state */
+        .hidden {
+            opacity: 0;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☕ Coffee Ratio Visualiser</h1>
+        <p class="subtitle">Choose a coffee and watch the cup fill with espresso, water, and milk.</p>
+
+        <div class="coffee-selector">
+            <button class="coffee-btn active" data-coffee="espresso">Espresso</button>
+            <button class="coffee-btn" data-coffee="americano">Americano</button>
+            <button class="coffee-btn" data-coffee="latte">Latte</button>
+        </div>
+
+        <div class="visualization">
+            <div class="cup-container">
+                <div class="cup">
+                    <!-- Layers stack from bottom: milk, water, espresso -->
+                    <div class="liquid-layer milk-layer" id="milk-layer"></div>
+                    <div class="liquid-layer water-layer" id="water-layer"></div>
+                    <div class="liquid-layer espresso-layer" id="espresso-layer"></div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="coffee-name" id="coffee-name">Espresso</div>
+
+                <div class="ratio-breakdown" id="ratio-breakdown">
+                    <!-- Ratio items will be inserted here by JavaScript -->
+                </div>
+
+                <div class="description" id="description">
+                    Pure, concentrated coffee - the foundation of all espresso-based drinks.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        // COFFEE DATA CONFIGURATION
+        // ═══════════════════════════════════════════════════════════════
+        // Add new drinks here! Just ensure espresso + water + milk = 100
+        // ═══════════════════════════════════════════════════════════════
+
+        const coffeeData = {
+            espresso: {
+                name: 'Espresso',
+                espresso: 100,
+                water: 0,
+                milk: 0,
+                description: 'Pure, concentrated coffee - the foundation of all espresso-based drinks.'
+            },
+            americano: {
+                name: 'Americano',
+                espresso: 30,
+                water: 70,
+                milk: 0,
+                description: 'Espresso diluted with hot water for a lighter, longer drink with bold coffee flavor.'
+            },
+            latte: {
+                name: 'Latte',
+                espresso: 30,
+                water: 0,
+                milk: 70,
+                description: 'Smooth and creamy espresso with steamed milk, perfect for a mellow coffee experience.'
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════
+        // APPLICATION LOGIC
+        // ═══════════════════════════════════════════════════════════════
+
+        // Get DOM elements
+        const coffeeButtons = document.querySelectorAll('.coffee-btn');
+        const espressoLayer = document.getElementById('espresso-layer');
+        const waterLayer = document.getElementById('water-layer');
+        const milkLayer = document.getElementById('milk-layer');
+        const coffeeName = document.getElementById('coffee-name');
+        const ratioBreakdown = document.getElementById('ratio-breakdown');
+        const description = document.getElementById('description');
+
+        // Current selected coffee
+        let currentCoffee = 'espresso';
+
+        /**
+         * Update the visualization with new coffee data
+         * @param {string} coffeeType - The key of the coffee type from coffeeData
+         */
+        function updateCoffee(coffeeType) {
+            const coffee = coffeeData[coffeeType];
+            if (!coffee) return;
+
+            currentCoffee = coffeeType;
+
+            // Update button states
+            coffeeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.coffee === coffeeType);
+            });
+
+            // Remove animation classes
+            espressoLayer.classList.remove('animate');
+            waterLayer.classList.remove('animate');
+            milkLayer.classList.remove('animate');
+
+            // Force reflow to restart animation
+            void espressoLayer.offsetWidth;
+
+            // Calculate layer heights (total cup height = 300px)
+            // Layers stack from bottom, so we need cumulative heights
+            const milkHeight = coffee.milk * 3; // 3px per percentage point
+            const waterHeight = coffee.water * 3;
+            const espressoHeight = coffee.espresso * 3;
+
+            // The milk is at the bottom, water on top of milk, espresso on top
+            // But we position from bottom, so milk gets full height including layers above
+            const milkBottom = 0;
+            const waterBottom = milkHeight;
+            const espressoBottom = milkHeight + waterHeight;
+
+            // Set heights
+            milkLayer.style.height = `${milkHeight}px`;
+            waterLayer.style.height = `${waterHeight}px`;
+            espressoLayer.style.height = `${espressoHeight}px`;
+
+            // Add animation classes with slight delays for stagger effect
+            setTimeout(() => {
+                if (milkHeight > 0) milkLayer.classList.add('animate');
+            }, 100);
+
+            setTimeout(() => {
+                if (waterHeight > 0) waterLayer.classList.add('animate');
+            }, 300);
+
+            setTimeout(() => {
+                if (espressoHeight > 0) espressoLayer.classList.add('animate');
+            }, 500);
+
+            // Update info panel
+            coffeeName.textContent = coffee.name;
+            description.textContent = coffee.description;
+
+            // Update ratio breakdown
+            updateRatioBreakdown(coffee);
+        }
+
+        /**
+         * Update the ratio breakdown display
+         * @param {Object} coffee - The coffee data object
+         */
+        function updateRatioBreakdown(coffee) {
+            ratioBreakdown.innerHTML = '';
+
+            // Create ratio items for non-zero percentages
+            const items = [
+                { name: 'Espresso', percentage: coffee.espresso, class: 'espresso' },
+                { name: 'Water', percentage: coffee.water, class: 'water' },
+                { name: 'Milk', percentage: coffee.milk, class: 'milk' }
+            ];
+
+            items.forEach(item => {
+                if (item.percentage > 0) {
+                    const ratioItem = document.createElement('div');
+                    ratioItem.className = 'ratio-item hidden fade-in';
+                    ratioItem.innerHTML = `
+                        <div class="ratio-color ${item.class}"></div>
+                        <span class="ratio-text">${item.name}</span>
+                        <span class="ratio-percentage">${item.percentage}%</span>
+                    `;
+                    ratioBreakdown.appendChild(ratioItem);
+                }
+            });
+
+            // Trigger fade-in animation
+            setTimeout(() => {
+                document.querySelectorAll('.ratio-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.remove('hidden');
+                    }, index * 100);
+                });
+            }, 10);
+        }
+
+        // Add click event listeners to coffee buttons
+        coffeeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const coffeeType = button.dataset.coffee;
+                updateCoffee(coffeeType);
+            });
+        });
+
+        // Initialize with espresso
+        updateCoffee('espresso');
+    </script>
+</body>
+</html>
