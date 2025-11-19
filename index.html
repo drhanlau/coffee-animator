@@ -165,6 +165,7 @@
                 opacity: 0;
             }
             to {
+                height: var(--target-height);
                 opacity: 1;
             }
         }
@@ -377,28 +378,31 @@
             waterLayer.classList.remove('animate');
             milkLayer.classList.remove('animate');
 
-            // Force reflow to restart animation
-            void espressoLayer.offsetWidth;
-
             // Calculate layer heights (total cup height = 300px)
             const milkHeight = coffee.milk * 3; // 3px per percentage point
             const waterHeight = coffee.water * 3;
             const espressoHeight = coffee.espresso * 3;
 
-            // Set heights and bottom positions for proper stacking
+            // Reset all layers to height 0 and set positions
             // Stack order from bottom to top: Espresso → Water → Milk
 
             // Espresso is at the bottom
-            espressoLayer.style.height = `${espressoHeight}px`;
+            espressoLayer.style.height = '0px';
             espressoLayer.style.bottom = '0';
+            espressoLayer.style.setProperty('--target-height', `${espressoHeight}px`);
 
             // Water sits on top of espresso
-            waterLayer.style.height = `${waterHeight}px`;
+            waterLayer.style.height = '0px';
             waterLayer.style.bottom = `${espressoHeight}px`;
+            waterLayer.style.setProperty('--target-height', `${waterHeight}px`);
 
             // Milk sits on top of water and espresso
-            milkLayer.style.height = `${milkHeight}px`;
+            milkLayer.style.height = '0px';
             milkLayer.style.bottom = `${espressoHeight + waterHeight}px`;
+            milkLayer.style.setProperty('--target-height', `${milkHeight}px`);
+
+            // Force reflow to ensure height reset is applied
+            void espressoLayer.offsetWidth;
 
             // Add animation classes sequentially (one at a time, not overlapping)
             // Each animation takes 800ms, so we start the next one after the previous finishes
